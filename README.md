@@ -17,4 +17,4 @@ JSONPATH:$..Abfahrt0.type        (e.g. "U-Bahn")
 JSONPATH:$..Abfahrt0.icon        (e.g. "mdi:ubahn")
 JSONPATH:$..Abfahrt0.cancelled:  (e.g. "false")
 JSONPATH:$..Abfahrt0.messages    (e.g. [])
-etc can be queried
+etc can be queried.
