@@ -76,8 +76,8 @@ def publish_mqtt(data, subtopic):
         print(f"Error publishing MQTT message: {str(e)}")
 
 def main():
-    station_list = ['Taimerhofstraße', 'Johanneskirchner Straße']
-    destination_list = ['Effnerplatz', 'Nordbad', 'Max-Weber-Platz', 'Romanplatz']
+    station_list = ['Hauptbahnhof', 'Lehel']
+    destination_list = ['Hauptbahnhof', 'Lehel', 'Max-Weber-Platz', 'Romanplatz']
 
     for station_name in station_list:
         departure_data = get_departures(station_name, destination_list)
