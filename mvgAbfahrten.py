@@ -9,8 +9,6 @@
 #    JSONPATH:$..Abfahrt2.info
 #    JSONPATH:$..Abfahrt3.info
 #
-#
-#
 #############################################################################
 
 import json
@@ -20,8 +18,13 @@ from datetime import datetime
 import paho.mqtt.client as mqtt
 from mvg import MvgApi
 
-def get_departures(station_name, destination_list):
-    station_id = MvgApi.station(station_name)
+def get_departures(station_name, exclude_destination_list):
+
+    try:
+        station_id = MvgApi.station(station_name)
+    except Exception as e:
+        print(f"Fehler beim Abrufen der Station-ID: {str(e)}")
+        return None
 
     if station_id:
         mvg_api = MvgApi(station_id['id'])
@@ -31,7 +34,7 @@ def get_departures(station_name, destination_list):
 
         idx = 0
         for item in departures:
-            if item['destination'] in destination_list:
+            if item['destination'] not in exclude_destination_list:
                 time_readable = datetime.fromtimestamp(item.get('time')).strftime('%H:%M Uhr')
                 akt_time = int(time.mktime(datetime.now().timetuple()))
                 dif_in_min = int((item['time'] - akt_time) / 60)
@@ -53,7 +56,6 @@ def get_departures(station_name, destination_list):
 
 def publish_mqtt(data, subtopic):
 
-
     subtopic = subtopic.replace(" ","_")
 
     MQTT_HOST = "localhost"
@@ -71,16 +73,17 @@ def publish_mqtt(data, subtopic):
         mqttc.connect(MQTT_HOST, MQTT_PORT, 20)
         mqttc.publish(MQTT_TOPIC, MQTT_MSG)
         mqttc.disconnect()
-        print(f"Published MQTT message to {MQTT_TOPIC}: {MQTT_MSG}")
+        #print(f"Published MQTT message to {MQTT_TOPIC}: {MQTT_MSG}")
     except Exception as e:
         print(f"Error publishing MQTT message: {str(e)}")
 
 def main():
-    station_list = ['Hauptbahnhof', 'Lehel']
-    destination_list = ['Hauptbahnhof', 'Lehel', 'Max-Weber-Platz', 'Romanplatz']
+    station_list = ['Taimerhofstraße']
+    #destination_list = ['Hauptbahnhof', 'Max-Weber-Platz', 'Romanplatz', 'Amalienburgstraße']
+    exclude_destination_list = ['St. Emmeram']
 
     for station_name in station_list:
-        departure_data = get_departures(station_name, destination_list)
+        departure_data = get_departures(station_name, exclude_destination_list)
         if departure_data:
             publish_mqtt(departure_data, station_name)
 
